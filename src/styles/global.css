@@ -1,1 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* Tailwind v4 colors pallete */
+@theme {
+  --color-bg-darkness-100: hsl(0, 0%, 2%);
+  --font-poppins: Poppins, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
