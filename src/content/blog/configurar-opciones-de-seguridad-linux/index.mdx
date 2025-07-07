@@ -1,0 +1,173 @@
+---
+title: 'Opciones de Seguridad en Linux: Una Guía Práctica'
+description: 'Aprende a proteger tu sistema Linux con autenticación, cifrado y cortafuegos. Consejos prácticos para usuarios de Ubuntu y Pop!_OS.'
+date: 2025-07-06
+tags: ['linux', 'security', 'encryption', 'firewall', 'authentication']
+image: 'https://res.cloudinary.com/dtfdnwkao/image/upload/c_crop,g_auto,h_1020,w_1920/wallpaper_lwk3zn'
+authors: ['yovel-kyr', 'savecoders']
+---
+
+## Introducción
+
+Hello! My name is enscribe ([jktrn](https://github.com/jktrn) on GitHub), and I'm a fullstack web developer who has been fiddling with blogging platforms for a couple of years now. I run a blog at [enscribe.dev](https://enscribe.dev), where I write about cybersecurity and the capture-the-flag (CTF) scene.
+
+I have a lot of opinions about what makes a great blogging template. As a cumulative result of all the slop, bullshit, and outright terrible design decisions I've had to deal with working with various templates and frameworks, I bring you [astro-erudite](https://github.com/jktrn/astro-erudite), which should hopefully bring a better developer and user experience in terms of ease of use, customization, and performance.
+
+astro-erudite is written in Astro, a framework hyperoptimized for static content such as blogs. Aesthetically, it is also designed to be as boring as possible while still maintaining maximum functionality, as to allow for the freedom of the developer (or the designer they hire) to make their blog uniquely their own. Within the codebase of this template I've included many nuances that, in my opinion (and there will be many, many opinions here), make the developer experience significantly more pleasant. I've also _excluded_ many features that, frankly, you don't need.
+
+
+# Linux (Ubuntu / Pop!_OS)
+
+Si usas Linux, especialmente **Ubuntu** o **Pop!_OS**, sabes que la seguridad es fundamental. Aquí te explico cómo proteger tu sistema, con comandos y tips prácticos para que tu equipo esté seguro.
+
+<div align="center">
+  <img src="https://i.postimg.cc/kGdR4T4L/imagen-2025-07-06-135901630.png" alt="Linux Seguridad" />
+</div>
+
+---
+
+## Autenticación
+
+Linux ofrece múltiples métodos de autenticación, más allá de la tradicional contraseña:
+
+### 1. Contraseñas robustas
+
+Las contraseñas fuertes evitan accesos no autorizados. Se recomienda usar al menos 12 caracteres, mezclando letras, números y símbolos. Puedes instalar y configurar `libpam-pwquality` para forzar políticas más estrictas:
+
+```bash
+sudo apt install libpam-pwquality
+sudo nano /etc/security/pwquality.conf
+```
+
+Define reglas como la longitud mínima, cantidad de caracteres especiales, etc.
+
+> 💡 **Tip:** Usa combinaciones únicas y evita palabras comunes o fechas.
+
+<div align="center">
+  <img src="https://i.postimg.cc/W4RCvmWF/imagen-2025-07-06-143605808-removebg-preview.png" alt="Contraseña Fuerte" />
+</div>
+
+### 2. PIN
+
+Ubuntu y Pop!_OS permiten configurar un PIN como método alternativo de inicio de sesión, especialmente en KDE Plasma. No es recomendable en equipos compartidos o sin cifrado, ya que un atacante con acceso físico puede probar combinaciones fácilmente.
+
+### 3. Autenticación biométrica (Huella Dactilar)
+
+Desde Ubuntu 20.04 y Pop!_OS 21.04 puedes usar tu huella digital para iniciar sesión y confirmar acciones:
+
+```bash
+sudo apt install fprintd libpam-fprintd
+fprintd-enroll
+```
+
+<div align="center">
+  <img src="https://i.postimg.cc/52pfg2fk/finger-scan-8875206.png" alt="Lector Huella" />
+</div>
+
+Verifica la compatibilidad de tu lector en [libfprint.org](https://fprint.freedesktop.org/supported-devices.html).
+
+### 4. Reconocimiento facial
+
+Si prefieres usar tu rostro para autenticarte, **Howdy** es una opción open source.
+
+<div align="center">
+  <img src="https://i.postimg.cc/4ysvXyVT/imagen-2025-07-06-140514316-removebg-preview.png" alt="Howdy Linux" />
+</div>
+
+**Howdy** es una herramienta de autenticación facial para Linux, inspirada en *Windows Hello*. Permite iniciar sesión con tu rostro utilizando la cámara del sistema. Se integra con PAM (Pluggable Authentication Modules), lo que la hace compatible con el inicio de sesión, `sudo` y otras operaciones que requieren autenticación.
+
+Funciona en la mayoría de distribuciones basadas en Ubuntu y es ideal para quienes desean comodidad sin sacrificar seguridad.
+
+Para instalar y configurarlo:
+
+```bash
+sudo add-apt-repository ppa:boltgolt/howdy
+sudo apt update
+sudo apt install howdy
+sudo howdy add
+```
+
+Solo mira a la cámara para iniciar sesión o usar `sudo`. Requiere webcam funcional. Howdy es compatible con configuraciones PAM en Ubuntu y derivados.
+
+---
+
+## Encriptación
+
+La encriptación en Linux garantiza que los datos sean inaccesibles sin autorización, incluso si se pierde o roba el dispositivo.
+
+### 1. Cifrado completo del disco (FDE)
+
+Durante la instalación de Ubuntu o Pop!_OS, puedes activar el cifrado con **LUKS** para proteger todo el disco:
+
+- Bloquea el acceso desde el arranque.
+- Compatible con TPM 2.0.
+
+### 2. Cifrado de particiones individuales
+
+Usa `cryptsetup` para cifrar particiones concretas:
+
+```bash
+sudo cryptsetup luksFormat /dev/sdXn
+sudo cryptsetup luksOpen /dev/sdXn secure_data
+```
+
+Edita `/etc/crypttab` y `/etc/fstab` para montaje automático.
+
+### 3. Cifrado en usuarios existentes
+
+Puedes cifrar el directorio `/home` de un usuario existente usando `ecryptfs`, o crear un volumen cifrado con LUKS y mover los datos con `rsync`, ajustando el montaje en fstab.
+
+---
+
+## Cortafuegos (Firewall)
+
+Linux usa `iptables` o `nftables`, pero para la mayoría de usuarios `ufw` es más simple.
+
+### 1. Configuración básica con UFW
+
+```bash
+sudo apt install ufw
+sudo ufw enable
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow ssh
+sudo ufw status verbose
+```
+
+### 2. Interfaz gráfica con GUFW
+
+```bash
+sudo apt install gufw
+```
+
+<div align="center">
+  <img src="https://i.postimg.cc/3RRHPcGY/imagen-2025-07-06-141110110.png" alt="GUFW" />
+</div>
+
+Con GUFW puedes añadir reglas para puertos, IPs y protocolos desde una interfaz visual.
+
+### 3. Reglas avanzadas con UFW
+
+Ejemplo para permitir SSH desde red local:
+
+```bash
+sudo ufw allow from 192.168.1.0/24 to any port 22 proto tcp
+```
+
+### 4. Alternativa: firewalld
+
+Instala `firewalld` si prefieres una opción dinámica:
+
+```bash
+sudo apt install firewalld
+sudo systemctl enable firewalld --now
+```
+
+---
+
+## Recursos
+
+- [Ubuntu Security Guide - Oficial](https://ubuntu.com/security)
+- [Linux UFW Documentation](https://help.ubuntu.com/community/UFW)
+- [Howdy GitHub](https://github.com/boltgolt/howdy)
+- [libfprint device list](https://fprint.freedesktop.org/supported-devices.html)
