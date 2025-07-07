@@ -1,10 +1,67 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import BlogCard from '@/components/BlogCard.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import { buttonVariants } from '@/components/ui/button'
+import { SITE } from '@/consts'
+import Layout from '@/layouts/Layout.astro'
+import { getRecentPosts } from '@/lib/data-utils'
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const blog = await getRecentPosts(SITE.featuredPostCount)
 ---
 
-<Layout>
-  <p>Home pages</p>
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="Home" />
+  <section>
+    <div class="rounded-lg border">
+      <div class="flex flex-col space-y-1.5 p-6">
+        <h3 class="text-3xl leading-none font-medium">CyberVitae</h3>
+      </div>
+      <section class="p-6 pt-0">
+        <h2 class="mb-4 text-2xl font-medium">Sobre el blog</h2>
+        <p class="text-muted-foreground mb-4">
+          Bienvenido a <span class="font-semibold">{}</span>, un espacio
+          dedicado a compartir conocimientos, experiencias y recursos sobre
+          ciberseguridad, Linux, software libre y tecnología en general. Aquí
+          encontrarás guías prácticas, análisis de herramientas, noticias y
+          consejos para mejorar tus habilidades técnicas y proteger tu entorno
+          digital.
+        </p>
+        <p class="text-muted-foreground">
+          Explora los artículos más recientes en la sección <Link
+            href="/blog"
+            underline
+            class="text-foreground">Blog</Link
+          > o conoce más sobre el autor en la sección <Link
+            href="/about"
+            underline
+            class="text-foreground">Acerca de</Link
+          >.
+        </p>
+      </section>
+    </div>
+  </section>
+  <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">Latest posts</h2>
+    <ul class="flex flex-col gap-y-4">
+      {
+        blog.map((post) => (
+          <li>
+            <BlogCard entry={post} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="flex justify-center">
+      <Link
+        href="/blog"
+        class={buttonVariants({ variant: 'ghost' }) + ' group'}
+      >
+        See all posts <span
+          class="ml-1.5 transition-transform group-hover:translate-x-1"
+          >&rarr;</span
+        >
+      </Link>
+    </div>
+  </section>
 </Layout>
